@@ -9,6 +9,7 @@ const client = createClient({
 
 // SQLite/libSQL does not enforce foreign keys (our `onDelete: "cascade"`)
 // unless this pragma is set on the connection.
-await client.execute("PRAGMA foreign_keys = ON;");
+// Fire off in the background without awaiting (tsx CommonJS compat issue)
+client.execute("PRAGMA foreign_keys = ON;").catch(console.error);
 
 export const db = drizzle(client, { schema });
