@@ -1,3 +1,5 @@
+import { cookies } from "next/headers";
+
 export const SESSION_COOKIE_NAME = "admin_session";
 export const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -40,4 +42,18 @@ export async function verifySessionToken(
   const key = await getKey(secret);
   const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
   return toHex(signature) === signatureHex;
+}
+
+/**
+ * Server Action-level auth check. Middleware only gates page navigation to
+ * `/admin/**`, but a Server Action can be invoked directly regardless of
+ * which page rendered the form, so every mutating action must verify the
+ * admin session itself instead of relying solely on middleware.
+ */
+export async function requireAdminSession(): Promise<boolean> {
+  const secret = process.env.ADMIN_SECRET;
+  if (!secret) return false;
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  return verifySessionToken(secret, token);
 }

@@ -1,5 +1,6 @@
 import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
+import { eq, count } from "drizzle-orm";
 import { topics, cards } from "../lib/db/schema";
 import { seedTopics } from "../data/seed-sproochen";
 
@@ -25,6 +26,16 @@ import { seedTopics } from "../data/seed-sproochen";
         createdAt: Date.now(),
       })
       .onConflictDoNothing();
+
+    const [{ value: existingCardCount }] = await db
+      .select({ value: count() })
+      .from(cards)
+      .where(eq(cards.topicId, topic.id));
+
+    if (existingCardCount > 0) {
+      console.log(`Skipping cards for topic "${topic.id}": ${existingCardCount} card(s) already exist.`);
+      continue;
+    }
 
     for (const [cardIndex, [questionLu, questionRu, answerLu, answerRu]] of topic.cards.entries()) {
       await db.insert(cards).values({
