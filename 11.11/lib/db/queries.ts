@@ -20,3 +20,32 @@ export async function getTopicsWithCounts(): Promise<TopicSummary[]> {
     .groupBy(topics.id)
     .orderBy(asc(topics.position));
 }
+
+export type StudyCard = {
+  id: number;
+  questionLu: string;
+  questionRu: string;
+  answerLu: string;
+  answerRu: string;
+};
+
+export async function getTopicWithCards(
+  topicId: string
+): Promise<{ id: string; name: string; cards: StudyCard[] } | null> {
+  const [topic] = await db.select().from(topics).where(eq(topics.id, topicId));
+  if (!topic) return null;
+
+  const topicCards = await db
+    .select({
+      id: cards.id,
+      questionLu: cards.questionLu,
+      questionRu: cards.questionRu,
+      answerLu: cards.answerLu,
+      answerRu: cards.answerRu,
+    })
+    .from(cards)
+    .where(eq(cards.topicId, topicId))
+    .orderBy(asc(cards.position));
+
+  return { id: topic.id, name: topic.name, cards: topicCards };
+}
