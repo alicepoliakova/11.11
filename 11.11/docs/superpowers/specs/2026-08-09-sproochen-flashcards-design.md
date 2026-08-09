@@ -15,10 +15,10 @@ Goal: rebuild this as a page (or pages) inside the existing `11.11/` Next.js app
 with cards stored in a real database instead of hardcoded JS, and a way to manage
 topics/cards without touching code.
 
-Note: the source HTML's Cyrillic/accented text is mojibake (UTF-8 mis-decoded as
-Latin-1, e.g. `Ð°Ð½Ð³Ð»Ð¸Ð¹ÑÐºÐ¸` should read `английски`, `MÃ©int` should read `Méint`).
-When porting the 47 existing cards into seed data, this must be corrected
-(`Buffer.from(text, 'latin1').toString('utf8')` on each string fixes it).
+Source file: `~/Downloads/sproochen-cards.html`, confirmed clean UTF-8 on disk
+(the file contains one topic, "Sproochen", 47 question/answer pairs, in a
+`TOPICS` JS array). Seeding will parse this array directly out of that file —
+no re-encoding needed.
 
 ## Architecture
 
@@ -31,7 +31,7 @@ lib/db/schema.ts       Drizzle schema (topics, cards)
 lib/db/index.ts        Drizzle client over @libsql/client (Turso)
 lib/actions.ts         server actions: topic/card CRUD, admin login/logout
 drizzle/                SQL migrations (drizzle-kit generated)
-data/seed-sproochen.ts  the 47 existing cards, decoded, as plain data
+data/seed-sproochen.ts  the 47 existing cards, ported as plain data
 scripts/seed.ts         one-time seed script (run via `npm run db:seed`)
 middleware.ts           guards /admin/** routes
 ```
