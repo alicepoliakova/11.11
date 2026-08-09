@@ -49,3 +49,32 @@ export async function getTopicWithCards(
 
   return { id: topic.id, name: topic.name, cards: topicCards };
 }
+
+export type AdminCard = {
+  id: number;
+  questionLu: string;
+  questionRu: string;
+  answerLu: string;
+  answerRu: string;
+  position: number;
+};
+
+export async function getTopicCardsForAdmin(topicId: string): Promise<AdminCard[]> {
+  return db
+    .select({
+      id: cards.id,
+      questionLu: cards.questionLu,
+      questionRu: cards.questionRu,
+      answerLu: cards.answerLu,
+      answerRu: cards.answerRu,
+      position: cards.position,
+    })
+    .from(cards)
+    .where(eq(cards.topicId, topicId))
+    .orderBy(asc(cards.position));
+}
+
+export async function getTopicName(topicId: string): Promise<string | null> {
+  const [topic] = await db.select({ name: topics.name }).from(topics).where(eq(topics.id, topicId));
+  return topic?.name ?? null;
+}
