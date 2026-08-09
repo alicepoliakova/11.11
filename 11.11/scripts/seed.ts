@@ -1,8 +1,20 @@
-import { db } from "../lib/db";
+import { drizzle } from "drizzle-orm/libsql";
+import { createClient } from "@libsql/client";
 import { topics, cards } from "../lib/db/schema";
 import { seedTopics } from "../data/seed-sproochen";
 
 (async () => {
+  const client = createClient({
+    url: process.env.DATABASE_URL ?? "file:./local.db",
+    authToken: process.env.DATABASE_AUTH_TOKEN,
+  });
+
+  // SQLite/libSQL does not enforce foreign keys (our `onDelete: "cascade"`)
+  // unless this pragma is set on the connection.
+  await client.execute("PRAGMA foreign_keys = ON;");
+
+  const db = drizzle(client, { schema: { topics, cards } });
+
   for (const [topicIndex, topic] of seedTopics.entries()) {
     await db
       .insert(topics)
@@ -29,4 +41,6 @@ import { seedTopics } from "../data/seed-sproochen";
 
   const cardCount = seedTopics.reduce((n, t) => n + t.cards.length, 0);
   console.log(`Seeded ${seedTopics.length} topic(s), ${cardCount} card(s).`);
+
+  client.close();
 })();
