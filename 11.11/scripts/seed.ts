@@ -2,7 +2,10 @@ import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
 import { eq, count } from "drizzle-orm";
 import { topics, cards } from "../lib/db/schema";
-import { seedTopics } from "../data/seed-sproochen";
+import { seedTopics as sproochenTopics } from "../data/seed-sproochen";
+import { seedTopics as summerWanterTopics } from "../data/seed-summer-wanter";
+
+const seedTopics = [...sproochenTopics, ...summerWanterTopics];
 
 (async () => {
   const client = createClient({
