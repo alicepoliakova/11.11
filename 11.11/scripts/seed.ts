@@ -4,8 +4,9 @@ import { eq, count } from "drizzle-orm";
 import { topics, cards } from "../lib/db/schema";
 import { seedTopics as sproochenTopics } from "../data/seed-sproochen";
 import { seedTopics as summerWanterTopics } from "../data/seed-summer-wanter";
+import { seedTopics as transportTopics } from "../data/seed-transport";
 
-const seedTopics = [...sproochenTopics, ...summerWanterTopics];
+const seedTopics = [...sproochenTopics, ...summerWanterTopics, ...transportTopics];
 
 (async () => {
   const client = createClient({
