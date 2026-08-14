@@ -13,8 +13,8 @@ export default async function StudyPage({
   if (!topic) notFound();
 
   return (
-    <div className="flex flex-1 flex-col bg-[#eef2f6]">
-      <header className="flex items-center justify-between bg-[#2E5A87] px-5 py-4 text-white shadow-md">
+    <div className="flex flex-1 flex-col bg-[var(--bg)]">
+      <header className="flex items-center justify-between bg-[var(--btn-secondary-bg)] px-5 py-4 text-[var(--btn-secondary-ink)] shadow-md">
         <div>
           <div className="text-[17px] font-bold">{topic.name}</div>
           <div className="mt-0.5 text-xs opacity-80">Flashcards · A1–A2</div>
@@ -24,7 +24,7 @@ export default async function StudyPage({
         </Link>
       </header>
       {topic.cards.length === 0 ? (
-        <p className="flex-1 p-6 text-center text-sm text-[#6c7a89]">
+        <p className="flex-1 p-6 text-center text-sm text-[var(--ink-muted)]">
           This topic has no cards yet.
         </p>
       ) : (

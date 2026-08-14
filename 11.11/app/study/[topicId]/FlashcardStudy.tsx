@@ -181,25 +181,29 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
   return (
     <>
       <div className="flex items-center justify-between px-4 pb-1 pt-3">
-        <div className="flex rounded-[10px] bg-[#dde5ee] p-[3px]">
+        <div className="flex rounded-[10px] bg-[var(--btn-secondary-bg)] p-[3px]">
           <button
             onClick={() => setMode(false)}
-            className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold text-[#213f5e] ${
-              !shuffled ? "bg-white shadow-sm" : ""
+            className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
+              !shuffled
+                ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm"
+                : "text-[var(--btn-secondary-ink)]"
             }`}
           >
             In order
           </button>
           <button
             onClick={() => setMode(true)}
-            className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold text-[#213f5e] ${
-              shuffled ? "bg-white shadow-sm" : ""
+            className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
+              shuffled
+                ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm"
+                : "text-[var(--btn-secondary-ink)]"
             }`}
           >
             Shuffle
           </button>
         </div>
-        <div className="text-[13px] font-semibold text-[#6c7a89]">
+        <div className="text-[13px] font-semibold text-[var(--ink-muted)]">
           {pos + 1} / {order.length}
         </div>
       </div>
@@ -211,29 +215,33 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
               if (soundOn && autoMode) stopAuto();
               setSoundOn(!soundOn);
             }}
-            className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
-              soundOn ? "bg-[#2E5A87] text-white" : "bg-[#dde5ee] text-[#213f5e]"
+            className={`rounded-lg border px-3 py-1.5 text-[13px] font-semibold ${
+              soundOn
+                ? "border-[var(--accent-text)] bg-[var(--btn-secondary-bg)] text-[var(--accent-text)]"
+                : "border-[var(--line)] bg-[var(--btn-secondary-bg)] text-[var(--btn-secondary-ink)]"
             }`}
           >
             {soundOn ? "Sound: On" : "Sound: Off"}
           </button>
           <button
             onClick={() => setPauseOn(!pauseOn)}
-            className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
-              pauseOn ? "bg-[#2E5A87] text-white" : "bg-[#dde5ee] text-[#213f5e]"
+            className={`rounded-lg border px-3 py-1.5 text-[13px] font-semibold ${
+              pauseOn
+                ? "border-[var(--accent-text)] bg-[var(--btn-secondary-bg)] text-[var(--accent-text)]"
+                : "border-[var(--line)] bg-[var(--btn-secondary-bg)] text-[var(--btn-secondary-ink)]"
             }`}
           >
             {pauseOn ? "Pause: On" : "Pause: Off"}
           </button>
           {audioError && (
-            <span className="text-[11px] font-semibold text-[#c8702d]">Audio unavailable</span>
+            <span className="text-[11px] font-semibold text-[var(--danger)]">Audio unavailable</span>
           )}
         </div>
         <div className="flex gap-2">
           {autoMode ? (
             <button
               onClick={stopAuto}
-              className="rounded-lg bg-[#c8702d] px-3 py-1.5 text-[13px] font-semibold text-white"
+              className="rounded-lg bg-[var(--accent-fill)] px-3 py-1.5 text-[13px] font-semibold text-[var(--accent-ink)]"
             >
               ■ Stop
             </button>
@@ -241,13 +249,13 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
             <>
               <button
                 onClick={() => runAuto("L")}
-                className="rounded-lg bg-[#dde5ee] px-3 py-1.5 text-[13px] font-semibold text-[#213f5e]"
+                className="rounded-lg border border-[var(--line)] bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--btn-secondary-ink)]"
               >
                 ▶ Auto L
               </button>
               <button
                 onClick={() => runAuto("L+R")}
-                className="rounded-lg bg-[#dde5ee] px-3 py-1.5 text-[13px] font-semibold text-[#213f5e]"
+                className="rounded-lg border border-[var(--line)] bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--btn-secondary-ink)]"
               >
                 ▶ Auto L+R
               </button>
@@ -267,29 +275,33 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
           onTouchEnd={onTouchEnd}
         >
           <div className={`flip-inner ${flipped ? "flip-flipped" : ""}`}>
-            <div className="flip-face flex flex-col items-center justify-center rounded-[22px] border border-[#dbe3ec] bg-white p-7 text-center shadow-lg">
-              <div className="absolute top-4 text-xs font-bold uppercase tracking-widest text-[#2E5A87]">
+            <div className="flip-face flex flex-col items-center justify-center rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-7 text-center shadow-lg">
+              <div className="absolute top-4 text-xs font-bold uppercase tracking-widest text-[var(--accent-text)]">
                 Fro · Question
               </div>
-              <div className="text-[26px] font-semibold leading-snug text-[#1a1a1a]">
+              <div className="text-[26px] font-semibold leading-snug text-[var(--ink)]">
                 {current.questionLu}
               </div>
-              <div className="mt-4 text-base italic leading-snug text-[#6c7a89]">
+              <div className="mt-4 text-base italic leading-snug text-[var(--ink-muted)]">
                 {current.questionRu}
               </div>
-              <div className="absolute bottom-4 text-xs text-[#a9b4c0]">Tap to see the answer</div>
+              <div className="absolute bottom-4 text-xs text-[var(--ink-muted)] opacity-70">
+                Tap to see the answer
+              </div>
             </div>
-            <div className="flip-face flip-back flex flex-col items-center justify-center rounded-[22px] border border-[#dbe3ec] bg-white p-7 text-center shadow-lg">
-              <div className="absolute top-4 text-xs font-bold uppercase tracking-widest text-[#c8702d]">
+            <div className="flip-face flip-back flex flex-col items-center justify-center rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-7 text-center shadow-lg">
+              <div className="absolute top-4 text-xs font-bold uppercase tracking-widest text-[var(--ink-muted)]">
                 Äntwert · Answer
               </div>
-              <div className="text-[26px] font-semibold leading-snug text-[#213f5e]">
+              <div className="text-[26px] font-semibold leading-snug text-[var(--ink)]">
                 {current.answerLu}
               </div>
-              <div className="mt-4 text-base italic leading-snug text-[#6c7a89]">
+              <div className="mt-4 text-base italic leading-snug text-[var(--ink-muted)]">
                 {current.answerRu}
               </div>
-              <div className="absolute bottom-4 text-xs text-[#a9b4c0]">Tap to flip back</div>
+              <div className="absolute bottom-4 text-xs text-[var(--ink-muted)] opacity-70">
+                Tap to flip back
+              </div>
             </div>
           </div>
         </div>
@@ -299,13 +311,13 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
         <button
           onClick={prev}
           disabled={pos === 0}
-          className="flex-1 rounded-[14px] bg-[#dde5ee] py-4 text-base font-bold text-[#213f5e] disabled:opacity-40"
+          className="flex-1 rounded-[14px] bg-[var(--btn-secondary-bg)] py-4 text-base font-bold text-[var(--btn-secondary-ink)] disabled:opacity-40"
         >
           ‹ Back
         </button>
         <button
           onClick={next}
-          className="flex-1 rounded-[14px] bg-[#2E5A87] py-4 text-base font-bold text-white"
+          className="flex-1 rounded-[14px] bg-[var(--accent-fill)] py-4 text-base font-bold text-[var(--accent-ink)]"
         >
           {pos === order.length - 1 ? "Restart ↻" : "Next ›"}
         </button>
