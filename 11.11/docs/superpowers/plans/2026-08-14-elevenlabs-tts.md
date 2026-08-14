@@ -890,8 +890,18 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
   // changes, not merely because Auto mode just turned on or off — otherwise
   // the instant Auto mode ends, this effect would replay whatever face
   // was just read by the Auto loop a second time.
+  //
+  // Synced via a plain no-deps effect (runs after every commit, not during
+  // render) rather than a direct `autoModeRef.current = autoMode` render-time
+  // write: this codebase's eslint-plugin-react-hooks flags ref mutation
+  // during render (`react-hooks/refs`), and effects within one commit run in
+  // declaration order, so placing this effect before the autoplay effect
+  // below still guarantees the ref is current by the time that effect reads
+  // it — same guarantee as the render-time write, without the lint issue.
   const autoModeRef = useRef<AutoMode>(null);
-  autoModeRef.current = autoMode;
+  useEffect(() => {
+    autoModeRef.current = autoMode;
+  });
 
   useEffect(() => {
     if (!hydrated || !soundOn || autoModeRef.current) return;
@@ -907,6 +917,7 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
     if (touchStartX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     if (Math.abs(dx) > 60) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       dx < 0 ? next() : prev();
     }
     touchStartX.current = null;
