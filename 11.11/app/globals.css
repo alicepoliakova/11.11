@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
 :root {
+  color-scheme: light;
   --bg: #f5f8f1;
   --surface: #ffffff;
+  --chip-bg: #ffffff;
   --ink: #14161a;
   --ink-muted: #6e7568;
   --line: #dde4d6;
-  --accent-text: #3f8f34;
+  --accent-text: #2e7d32;
   --accent-fill: #a6f26b;
   --accent-ink: #0b1a06;
   --btn-secondary-bg: #101114;
@@ -15,11 +17,13 @@
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
   --bg: #14151a;
   --surface: #1c1e24;
+  --chip-bg: #3d444d;
   --ink: #f3f5f0;
   --ink-muted: #8b9088;
-  --line: #262a30;
+  --line: #343a42;
   --accent-text: #a6f26b;
   --danger: #ff6b6b;
 }

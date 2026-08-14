@@ -184,9 +184,10 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
         <div className="flex rounded-[10px] bg-[var(--btn-secondary-bg)] p-[3px]">
           <button
             onClick={() => setMode(false)}
+            aria-pressed={!shuffled}
             className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
               !shuffled
-                ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm"
+                ? "bg-[var(--chip-bg)] text-[var(--ink)] shadow-sm"
                 : "text-[var(--btn-secondary-ink)]"
             }`}
           >
@@ -194,9 +195,10 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
           </button>
           <button
             onClick={() => setMode(true)}
+            aria-pressed={shuffled}
             className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
               shuffled
-                ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm"
+                ? "bg-[var(--chip-bg)] text-[var(--ink)] shadow-sm"
                 : "text-[var(--btn-secondary-ink)]"
             }`}
           >
@@ -215,6 +217,7 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
               if (soundOn && autoMode) stopAuto();
               setSoundOn(!soundOn);
             }}
+            aria-pressed={soundOn}
             className={`rounded-lg border px-3 py-1.5 text-[13px] font-semibold ${
               soundOn
                 ? "border-[var(--accent-text)] bg-[var(--btn-secondary-bg)] text-[var(--accent-text)]"
@@ -225,6 +228,7 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
           </button>
           <button
             onClick={() => setPauseOn(!pauseOn)}
+            aria-pressed={pauseOn}
             className={`rounded-lg border px-3 py-1.5 text-[13px] font-semibold ${
               pauseOn
                 ? "border-[var(--accent-text)] bg-[var(--btn-secondary-bg)] text-[var(--accent-text)]"
@@ -241,7 +245,7 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
           {autoMode ? (
             <button
               onClick={stopAuto}
-              className="rounded-lg bg-[var(--accent-fill)] px-3 py-1.5 text-[13px] font-semibold text-[var(--accent-ink)]"
+              className="rounded-lg border border-[var(--accent-text)] bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--accent-text)]"
             >
               ■ Stop
             </button>
@@ -311,7 +315,7 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
         <button
           onClick={prev}
           disabled={pos === 0}
-          className="flex-1 rounded-[14px] bg-[var(--btn-secondary-bg)] py-4 text-base font-bold text-[var(--btn-secondary-ink)] disabled:opacity-40"
+          className="flex-1 rounded-[14px] border border-[var(--line)] bg-[var(--btn-secondary-bg)] py-4 text-base font-bold text-[var(--btn-secondary-ink)] disabled:opacity-40"
         >
           ‹ Back
         </button>

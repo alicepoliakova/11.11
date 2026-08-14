@@ -32,9 +32,10 @@ export function ThemeToggle() {
     <div className="flex rounded-[10px] bg-[var(--btn-secondary-bg)] p-[3px]">
       <button
         onClick={() => choose("light")}
+        aria-pressed={theme === "light"}
         className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
           theme === "light"
-            ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm"
+            ? "bg-[var(--chip-bg)] text-[var(--ink)] shadow-sm"
             : "text-[var(--btn-secondary-ink)]"
         }`}
       >
@@ -42,9 +43,10 @@ export function ThemeToggle() {
       </button>
       <button
         onClick={() => choose("dark")}
+        aria-pressed={theme === "dark"}
         className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
           theme === "dark"
-            ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm"
+            ? "bg-[var(--chip-bg)] text-[var(--ink)] shadow-sm"
             : "text-[var(--btn-secondary-ink)]"
         }`}
       >
