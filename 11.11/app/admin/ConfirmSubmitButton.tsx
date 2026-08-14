@@ -13,7 +13,7 @@ export function ConfirmSubmitButton({
       onClick={(e) => {
         if (!confirm(confirmMessage)) e.preventDefault();
       }}
-      className="rounded-lg px-3 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-50"
+      className="rounded-lg px-3 py-1.5 text-sm font-semibold text-[var(--danger)] hover:bg-[var(--danger)]/10"
     >
       {label}
     </button>

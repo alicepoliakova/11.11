@@ -9,27 +9,27 @@ export function NewTopicForm() {
   return (
     <form
       action={formAction}
-      className="mb-6 flex flex-wrap items-end gap-3 rounded-xl border border-[#dbe3ec] bg-white p-4"
+      className="mb-6 flex flex-wrap items-end gap-3 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4"
     >
       <div className="flex-1">
-        <label className="mb-1 block text-xs font-semibold uppercase text-[#6c7a89]">
+        <label className="mb-1 block text-xs font-semibold uppercase text-[var(--ink-muted)]">
           New topic name
         </label>
         <input
           name="name"
           required
           placeholder="e.g. Wunnen"
-          className="w-full rounded-lg border border-[#dbe3ec] px-3 py-2 text-sm outline-none focus:border-[#2E5A87]"
+          className="w-full rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-sm outline-none placeholder:text-[var(--ink-muted)] focus:border-[var(--accent-text)]"
         />
       </div>
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-[#2E5A87] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+        className="rounded-lg bg-[var(--accent-fill)] px-4 py-2 text-sm font-semibold text-[var(--accent-ink)] disabled:opacity-60"
       >
         {pending ? "Adding…" : "Add topic"}
       </button>
-      {state.error && <p className="w-full text-sm text-red-600">{state.error}</p>}
+      {state.error && <p className="w-full text-sm text-[var(--danger)]">{state.error}</p>}
     </form>
   );
 }
