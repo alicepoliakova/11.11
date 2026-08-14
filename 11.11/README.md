@@ -59,6 +59,18 @@ is ephemeral:
    ```
 7. Deploy. `/admin` is protected by `ADMIN_PASSWORD`; `/` and `/study/**` are public.
 
+## Text-to-speech (ElevenLabs)
+
+Card audio is generated on first play via ElevenLabs (`eleven_v3`) and cached
+permanently in the database, so it's only generated once per card/field.
+
+**Local development:** add `ELEVENLABS_API_KEY` to `.env.local`. Optionally
+override `ELEVENLABS_VOICE_ID` / `ELEVENLABS_MODEL_ID` (see
+`.env.local.example` for defaults).
+
+**Production (Vercel):** add `ELEVENLABS_API_KEY` as an environment variable
+in the Vercel project settings (same place as `DATABASE_URL` etc.).
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
