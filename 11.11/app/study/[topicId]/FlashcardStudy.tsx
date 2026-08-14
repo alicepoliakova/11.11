@@ -13,15 +13,30 @@ function shuffle<T>(items: T[]): T[] {
   return copy;
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+type AutoMode = "L" | "L+R" | null;
+
 export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
   const [shuffled, setShuffled] = useState(false);
   const [order, setOrder] = useState<number[]>(() => cards.map((_, i) => i));
   const [pos, setPos] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  const [autoMode, setAutoMode] = useState<AutoMode>(null);
   const touchStartX = useRef<number | null>(null);
-  const { soundOn, setSoundOn, audioError, play, hydrated } = useSound();
+  const autoGenRef = useRef(0);
+  const { soundOn, setSoundOn, audioError, play, stop, hydrated } = useSound();
+
+  function stopAuto() {
+    autoGenRef.current += 1;
+    stop();
+    setAutoMode(null);
+  }
 
   function setMode(rand: boolean) {
+    if (autoMode) stopAuto();
     setShuffled(rand);
     const base = cards.map((_, i) => i);
     setOrder(rand ? shuffle(base) : base);
@@ -30,6 +45,7 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
   }
 
   function next() {
+    if (autoMode) stopAuto();
     setFlipped(false);
     if (pos < order.length - 1) {
       setPos(pos + 1);
@@ -40,9 +56,58 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
   }
 
   function prev() {
+    if (autoMode) stopAuto();
     if (pos > 0) {
       setFlipped(false);
       setPos(pos - 1);
+    }
+  }
+
+  async function runAuto(mode: "L" | "L+R") {
+    const gen = ++autoGenRef.current;
+    setAutoMode(mode);
+    if (!soundOn) setSoundOn(true);
+
+    let position = pos;
+    try {
+      while (position < order.length) {
+        if (autoGenRef.current !== gen) return;
+        setPos(position);
+        setFlipped(false);
+        const cardId = cards[order[position]].id;
+
+        await play(cardId, "question-lu");
+        if (autoGenRef.current !== gen) return;
+
+        if (mode === "L+R") {
+          await play(cardId, "question-ru");
+          if (autoGenRef.current !== gen) return;
+        }
+
+        await sleep(1000);
+        if (autoGenRef.current !== gen) return;
+
+        setFlipped(true);
+        await play(cardId, "answer-lu");
+        if (autoGenRef.current !== gen) return;
+
+        if (mode === "L+R") {
+          await play(cardId, "answer-ru");
+          if (autoGenRef.current !== gen) return;
+        }
+
+        await sleep(1000);
+        if (autoGenRef.current !== gen) return;
+
+        position += 1;
+      }
+    } catch {
+      // play() rejected: either stopAuto() interrupted it, or a real
+      // playback failure (audioError is already set by useSound in that case).
+    }
+
+    if (autoGenRef.current === gen) {
+      setAutoMode(null);
     }
   }
 
@@ -50,6 +115,7 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === " ") {
         e.preventDefault();
+        if (autoMode) stopAuto();
         setFlipped((f) => !f);
       }
       if (e.key === "ArrowRight") next();
@@ -58,6 +124,30 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   });
+
+  useEffect(() => {
+    return () => {
+      autoGenRef.current += 1;
+      stop();
+    };
+  }, [stop]);
+
+  const current = cards[order[pos]];
+
+  // Mirrors `autoMode` into a ref, deliberately excluded from the effect's
+  // deps below: the effect should only fire on genuine card/flip/sound
+  // changes, not merely because Auto mode just turned on or off — otherwise
+  // the instant Auto mode ends, this effect would replay whatever face
+  // was just read by the Auto loop a second time.
+  const autoModeRef = useRef<AutoMode>(null);
+  // eslint-disable-next-line react-hooks/refs -- deliberate render-time mirror, see comment above
+  autoModeRef.current = autoMode;
+
+  useEffect(() => {
+    if (!hydrated || !soundOn || autoModeRef.current) return;
+    const field: AudioField = flipped ? "answer-lu" : "question-lu";
+    play(current.id, field).catch(() => {});
+  }, [current.id, flipped, soundOn, hydrated, play]);
 
   function onTouchStart(e: TouchEvent) {
     touchStartX.current = e.touches[0].clientX;
@@ -72,14 +162,6 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
     }
     touchStartX.current = null;
   }
-
-  const current = cards[order[pos]];
-
-  useEffect(() => {
-    if (!hydrated || !soundOn) return;
-    const field: AudioField = flipped ? "answer-lu" : "question-lu";
-    play(current.id, field).catch(() => {});
-  }, [current.id, flipped, soundOn, hydrated, play]);
 
   return (
     <>
@@ -121,12 +203,40 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
             <span className="text-[11px] font-semibold text-[#c8702d]">Audio unavailable</span>
           )}
         </div>
+        <div className="flex gap-2">
+          {autoMode ? (
+            <button
+              onClick={stopAuto}
+              className="rounded-lg bg-[#c8702d] px-3 py-1.5 text-[13px] font-semibold text-white"
+            >
+              ■ Stop
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => runAuto("L")}
+                className="rounded-lg bg-[#dde5ee] px-3 py-1.5 text-[13px] font-semibold text-[#213f5e]"
+              >
+                ▶ Auto L
+              </button>
+              <button
+                onClick={() => runAuto("L+R")}
+                className="rounded-lg bg-[#dde5ee] px-3 py-1.5 text-[13px] font-semibold text-[#213f5e]"
+              >
+                ▶ Auto L+R
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col items-center px-4 pb-1 pt-2.5">
         <div
           className="flip-card w-full max-w-[520px] flex-1 cursor-pointer"
-          onClick={() => setFlipped((f) => !f)}
+          onClick={() => {
+            if (autoMode) stopAuto();
+            setFlipped((f) => !f);
+          }}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
