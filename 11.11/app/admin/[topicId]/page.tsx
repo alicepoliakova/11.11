@@ -16,15 +16,15 @@ export default async function AdminTopicPage({
   const cards = await getTopicCardsForAdmin(topicId);
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-1 flex-col p-6">
+    <div className="mx-auto flex max-w-2xl flex-1 flex-col bg-[var(--bg)] p-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <Link href="/admin" className="text-sm font-semibold text-[#6c7a89] underline">
+          <Link href="/admin" className="text-sm font-semibold text-[var(--ink-muted)] underline">
             ‹ All topics
           </Link>
-          <h1 className="mt-1 text-xl font-bold text-[#213f5e]">{topicName}</h1>
+          <h1 className="mt-1 text-xl font-bold text-[var(--ink)]">{topicName}</h1>
         </div>
-        <Link href={`/study/${topicId}`} className="text-sm font-semibold text-[#2E5A87] underline">
+        <Link href={`/study/${topicId}`} className="text-sm font-semibold text-[var(--accent-text)] underline">
           Preview study view
         </Link>
       </div>
@@ -41,7 +41,7 @@ export default async function AdminTopicPage({
             isLast={index === cards.length - 1}
           />
         ))}
-        {cards.length === 0 && <p className="text-sm text-[#6c7a89]">No cards yet — add one above.</p>}
+        {cards.length === 0 && <p className="text-sm text-[var(--ink-muted)]">No cards yet — add one above.</p>}
       </div>
     </div>
   );

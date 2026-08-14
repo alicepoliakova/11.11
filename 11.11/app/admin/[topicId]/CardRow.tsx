@@ -21,7 +21,7 @@ export function CardRow({
   const [answerRu, setAnswerRu] = useState(card.answerRu);
 
   return (
-    <div className="rounded-xl border border-[#dbe3ec] bg-white p-4">
+    <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4">
       <form
         action={updateCard.bind(null, card.id, topicId)}
         className="grid grid-cols-1 gap-2 sm:grid-cols-2"
@@ -31,28 +31,28 @@ export function CardRow({
           value={questionLu}
           onChange={(e) => setQuestionLu(e.target.value)}
           placeholder="Question (LU)"
-          className="rounded-lg border border-[#dbe3ec] px-3 py-2 text-sm"
+          className="rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-sm placeholder:text-[var(--ink-muted)]"
         />
         <input
           name="questionRu"
           value={questionRu}
           onChange={(e) => setQuestionRu(e.target.value)}
           placeholder="Question (RU)"
-          className="rounded-lg border border-[#dbe3ec] px-3 py-2 text-sm"
+          className="rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-sm placeholder:text-[var(--ink-muted)]"
         />
         <input
           name="answerLu"
           value={answerLu}
           onChange={(e) => setAnswerLu(e.target.value)}
           placeholder="Answer (LU)"
-          className="rounded-lg border border-[#dbe3ec] px-3 py-2 text-sm"
+          className="rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-sm placeholder:text-[var(--ink-muted)]"
         />
         <input
           name="answerRu"
           value={answerRu}
           onChange={(e) => setAnswerRu(e.target.value)}
           placeholder="Answer (RU)"
-          className="rounded-lg border border-[#dbe3ec] px-3 py-2 text-sm"
+          className="rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-sm placeholder:text-[var(--ink-muted)]"
         />
         <div className="col-span-full flex items-center justify-between pt-1">
           <div className="flex gap-1">
@@ -60,7 +60,7 @@ export function CardRow({
               type="submit"
               formAction={moveCard.bind(null, card.id, topicId, "up")}
               disabled={isFirst}
-              className="rounded-lg px-2 py-1 text-sm text-[#2E5A87] disabled:opacity-30"
+              className="rounded-lg px-2 py-1 text-sm text-[var(--accent-text)] disabled:opacity-30"
             >
               ↑
             </button>
@@ -68,7 +68,7 @@ export function CardRow({
               type="submit"
               formAction={moveCard.bind(null, card.id, topicId, "down")}
               disabled={isLast}
-              className="rounded-lg px-2 py-1 text-sm text-[#2E5A87] disabled:opacity-30"
+              className="rounded-lg px-2 py-1 text-sm text-[var(--accent-text)] disabled:opacity-30"
             >
               ↓
             </button>
@@ -76,7 +76,7 @@ export function CardRow({
           <div className="flex gap-2">
             <button
               type="submit"
-              className="rounded-lg bg-[#2E5A87] px-3 py-1.5 text-sm font-semibold text-white"
+              className="rounded-lg bg-[var(--accent-fill)] px-3 py-1.5 text-sm font-semibold text-[var(--accent-ink)]"
             >
               Save
             </button>
@@ -86,7 +86,7 @@ export function CardRow({
               onClick={(e) => {
                 if (!confirm("Delete this card?")) e.preventDefault();
               }}
-              className="rounded-lg px-3 py-1.5 text-sm font-semibold text-red-600"
+              className="rounded-lg px-3 py-1.5 text-sm font-semibold text-[var(--danger)]"
             >
               Delete
             </button>

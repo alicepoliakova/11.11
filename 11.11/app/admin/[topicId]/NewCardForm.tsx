@@ -15,37 +15,37 @@ export function NewCardForm({ topicId }: { topicId: string }) {
         await formAction(formData);
         formRef.current?.reset();
       }}
-      className="mb-6 grid grid-cols-1 gap-2 rounded-xl border border-[#dbe3ec] bg-white p-4 sm:grid-cols-2"
+      className="mb-6 grid grid-cols-1 gap-2 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 sm:grid-cols-2"
     >
       <input
         name="questionLu"
         placeholder="Question (LU)"
-        className="rounded-lg border border-[#dbe3ec] px-3 py-2 text-sm"
+        className="rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-sm placeholder:text-[var(--ink-muted)]"
       />
       <input
         name="questionRu"
         placeholder="Question (RU)"
-        className="rounded-lg border border-[#dbe3ec] px-3 py-2 text-sm"
+        className="rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-sm placeholder:text-[var(--ink-muted)]"
       />
       <input
         name="answerLu"
         placeholder="Answer (LU)"
-        className="rounded-lg border border-[#dbe3ec] px-3 py-2 text-sm"
+        className="rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-sm placeholder:text-[var(--ink-muted)]"
       />
       <input
         name="answerRu"
         placeholder="Answer (RU)"
-        className="rounded-lg border border-[#dbe3ec] px-3 py-2 text-sm"
+        className="rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-sm placeholder:text-[var(--ink-muted)]"
       />
       <div className="col-span-full flex items-center gap-3">
         <button
           type="submit"
           disabled={pending}
-          className="rounded-lg bg-[#2E5A87] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+          className="rounded-lg bg-[var(--accent-fill)] px-4 py-2 text-sm font-semibold text-[var(--accent-ink)] disabled:opacity-60"
         >
           {pending ? "Adding…" : "Add card"}
         </button>
-        {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+        {state.error && <p className="text-sm text-[var(--danger)]">{state.error}</p>}
       </div>
     </form>
   );
