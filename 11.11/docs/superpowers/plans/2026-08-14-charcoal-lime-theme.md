@@ -242,13 +242,20 @@ export function ThemeToggle() {
     }
   }
 
+  // Two-option exclusive segmented control, same treatment as the study
+  // screen's In order/Shuffle toggle (a lifted --surface chip for the
+  // selected option) — NOT a lime fill. The Global Constraints reserve
+  // --accent-fill for the one primary action per screen and cap secondary
+  // pills' "on" state at a text/border swap; this toggle is a settings
+  // selector, not an action, so it gets no lime at all, consistent with
+  // In order/Shuffle rather than with Sound/Pause/Auto's pill treatment.
   return (
     <div className="flex rounded-[10px] bg-[var(--btn-secondary-bg)] p-[3px]">
       <button
         onClick={() => choose("light")}
         className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
           theme === "light"
-            ? "bg-[var(--accent-fill)] text-[var(--accent-ink)]"
+            ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm"
             : "text-[var(--btn-secondary-ink)]"
         }`}
       >
@@ -258,7 +265,7 @@ export function ThemeToggle() {
         onClick={() => choose("dark")}
         className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
           theme === "dark"
-            ? "bg-[var(--accent-fill)] text-[var(--accent-ink)]"
+            ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm"
             : "text-[var(--btn-secondary-ink)]"
         }`}
       >
