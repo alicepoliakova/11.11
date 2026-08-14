@@ -37,17 +37,37 @@ export function useSound() {
     return new Promise<void>((resolve, reject) => {
       function cleanup() {
         audio!.removeEventListener("ended", onEnded);
-        audio!.removeEventListener("error", onError);
-        pendingRejectRef.current = null;
+        audio!.removeEventListener("error", onDomError);
+        if (pendingRejectRef.current === onStopped) {
+          pendingRejectRef.current = null;
+        }
       }
       function onEnded() {
         cleanup();
         resolve();
       }
-      function onError() {
+      // A genuine media failure (bad/missing source, decode error, etc.)
+      // reported by the <audio> element's `error` event — always a real
+      // failure, so it always sets audioError.
+      function onDomError() {
         cleanup();
         setAudioError(true);
         reject(new Error("audio playback failed"));
+      }
+      // `audio.play()`'s rejection can also be a benign, expected
+      // occurrence rather than a real failure: NotAllowedError (browser
+      // blocked autoplay pending a user gesture — the next user
+      // interaction naturally retries) or AbortError (this play() was
+      // superseded by a newer one before it finished loading/starting).
+      // Only surface "Audio unavailable" for anything else.
+      function onPlayRejected(err: unknown) {
+        cleanup();
+        const isBenign =
+          err instanceof Error && (err.name === "NotAllowedError" || err.name === "AbortError");
+        if (!isBenign) {
+          setAudioError(true);
+        }
+        reject(err instanceof Error ? err : new Error("audio playback failed"));
       }
       function onStopped() {
         cleanup();
@@ -55,10 +75,10 @@ export function useSound() {
       }
       pendingRejectRef.current = onStopped;
       audio.addEventListener("ended", onEnded);
-      audio.addEventListener("error", onError);
+      audio.addEventListener("error", onDomError);
       setAudioError(false);
       audio.src = `/api/tts/${cardId}/${field}`;
-      audio.play().catch(onError);
+      audio.play().catch(onPlayRejected);
     });
   }, []);
 

@@ -193,7 +193,10 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
       <div className="flex items-center justify-between px-4 pb-2">
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setSoundOn(!soundOn)}
+            onClick={() => {
+              if (soundOn && autoMode) stopAuto();
+              setSoundOn(!soundOn);
+            }}
             className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
               soundOn ? "bg-[#2E5A87] text-white" : "bg-[#dde5ee] text-[#213f5e]"
             }`}

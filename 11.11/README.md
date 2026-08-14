@@ -71,6 +71,14 @@ override `ELEVENLABS_VOICE_ID` / `ELEVENLABS_MODEL_ID` (see
 **Production (Vercel):** add `ELEVENLABS_API_KEY` as an environment variable
 in the Vercel project settings (same place as `DATABASE_URL` etc.).
 
+**Existing deployments:** this feature adds a new migration
+(`drizzle/0001_...`) for the audio-cache columns. If you're deploying this on
+top of an already-live database, run `npm run db:migrate` against the
+production `DATABASE_URL`/`DATABASE_AUTH_TOKEN` (step 6 above) *before*
+deploying — otherwise both the TTS route and the existing `/admin` card-edit
+feature will break, since `updateCard` also references the new audio
+columns.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
