@@ -17,12 +17,23 @@ export const metadata: Metadata = {
   description: "Flashcards for language study",
 };
 
+const THEME_SCRIPT = `
+try {
+  var stored = localStorage.getItem("flashcards-theme");
+  var theme = stored === "light" || stored === "dark" ? stored : "dark";
+  document.documentElement.setAttribute("data-theme", theme);
+} catch (e) {}
+`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
