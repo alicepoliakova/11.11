@@ -220,7 +220,7 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
             aria-pressed={soundOn}
             className={`rounded-lg border px-3 py-1.5 text-[13px] font-semibold ${
               soundOn
-                ? "border-[var(--accent-text)] bg-[var(--btn-secondary-bg)] text-[var(--accent-text)]"
+                ? "border-[var(--accent-on-dark)] bg-[var(--btn-secondary-bg)] text-[var(--accent-on-dark)]"
                 : "border-[var(--line)] bg-[var(--btn-secondary-bg)] text-[var(--btn-secondary-ink)]"
             }`}
           >
@@ -231,7 +231,7 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
             aria-pressed={pauseOn}
             className={`rounded-lg border px-3 py-1.5 text-[13px] font-semibold ${
               pauseOn
-                ? "border-[var(--accent-text)] bg-[var(--btn-secondary-bg)] text-[var(--accent-text)]"
+                ? "border-[var(--accent-on-dark)] bg-[var(--btn-secondary-bg)] text-[var(--accent-on-dark)]"
                 : "border-[var(--line)] bg-[var(--btn-secondary-bg)] text-[var(--btn-secondary-ink)]"
             }`}
           >
@@ -245,7 +245,7 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
           {autoMode ? (
             <button
               onClick={stopAuto}
-              className="rounded-lg border border-[var(--accent-text)] bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--accent-text)]"
+              className="rounded-lg border border-[var(--accent-on-dark)] bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--accent-on-dark)]"
             >
               ■ Stop
             </button>
