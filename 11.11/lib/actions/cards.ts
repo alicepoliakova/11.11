@@ -56,7 +56,16 @@ export async function updateCard(cardId: number, topicId: string, formData: Form
 
   await db
     .update(cards)
-    .set({ questionLu, questionRu, answerLu, answerRu })
+    .set({
+      questionLu,
+      questionRu,
+      answerLu,
+      answerRu,
+      questionLuAudio: null,
+      questionRuAudio: null,
+      answerLuAudio: null,
+      answerRuAudio: null,
+    })
     .where(eq(cards.id, cardId));
 
   revalidatePath(`/admin/${topicId}`);
