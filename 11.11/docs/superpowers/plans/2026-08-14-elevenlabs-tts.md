@@ -438,7 +438,7 @@ git commit -m "fix: clear cached card audio when the card is edited"
 
 **Interfaces:**
 - Consumes: `/api/tts/{cardId}/{field}` from Task 3; `StudyCard` type (unchanged) from `lib/db/queries.ts`.
-- Produces (from `useSound()`): `{ soundOn: boolean; setSoundOn: (v: boolean) => void; audioError: boolean; play: (cardId: number, field: AudioField) => Promise<void>; stop: () => void }`, and the exported type `AudioField = "question-lu" | "question-ru" | "answer-lu" | "answer-ru"`. `play`/`stop` are `useCallback`-memoized (stable identity) so they're safe to use in effect dependency arrays. `play()` rejects if playback errors (and sets `audioError` true) or if `stop()` interrupts it (rejects with message `"stopped"`); resolves when the clip finishes. Task 6 consumes `stop` (unused by this task) and this same `play`/`soundOn`/`setSoundOn`/`audioError` contract.
+- Produces (from `useSound()`): `{ soundOn: boolean; setSoundOn: (v: boolean) => void; audioError: boolean; play: (cardId: number, field: AudioField) => Promise<void>; stop: () => void; hydrated: boolean }`, and the exported type `AudioField = "question-lu" | "question-ru" | "answer-lu" | "answer-ru"`. `play`/`stop` are `useCallback`-memoized (stable identity) so they're safe to use in effect dependency arrays. `play()` rejects if playback errors (and sets `audioError` true) or if `stop()` interrupts it (rejects with message `"stopped"`); resolves when the clip finishes. `hydrated` starts `false` and flips to `true` in the same mount effect/commit that corrects `soundOn` from `localStorage` — any autoplay-triggering effect MUST gate on `hydrated` (not just `soundOn`) to avoid a race where the stale default `soundOn=true` fires one unwanted play before the stored preference is applied (`setState` inside an effect doesn't take effect until the next render, so a same-commit sibling effect would otherwise still see the old value). This task's own manual-autoplay effect (Step 2) already gates on `hydrated`. Task 6 additionally consumes `stop` (unused by this task) and reuses the same `hydrated`-gated pattern for its own manual-autoplay effect.
 
 - [ ] **Step 1: Create the sound hook**
 
@@ -455,6 +455,7 @@ const SOUND_STORAGE_KEY = "flashcards-sound-on";
 
 export function useSound() {
   const [soundOn, setSoundOnState] = useState(true);
+  const [hydrated, setHydrated] = useState(false);
   const [audioError, setAudioError] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const pendingRejectRef = useRef<(() => void) | null>(null);
@@ -463,6 +464,7 @@ export function useSound() {
     audioRef.current = new Audio();
     const stored = window.localStorage.getItem(SOUND_STORAGE_KEY);
     if (stored !== null) setSoundOnState(stored === "true");
+    setHydrated(true);
     return () => {
       audioRef.current?.pause();
       audioRef.current = null;
@@ -511,9 +513,18 @@ export function useSound() {
     pendingRejectRef.current?.();
   }, []);
 
-  return { soundOn, setSoundOn, audioError, play, stop };
+  return { soundOn, setSoundOn, audioError, play, stop, hydrated };
 }
 ```
+
+`hydrated` starts `false` and flips to `true` in the same mount effect that
+corrects `soundOn` from localStorage, in the same commit — so any consumer
+that gates on `hydrated` never sees the pre-correction default. This
+matters because `setSoundOnState` inside that effect does not take effect
+until React's *next* render; a manual-autoplay effect that only checked
+`soundOn` (not `hydrated`) could still fire once on the very first commit
+using the stale default `true`, playing audio even for a user whose stored
+preference is `off`. Gating on `hydrated` closes that race.
 
 - [ ] **Step 2: Wire the toggle + autoplay into FlashcardStudy**
 
@@ -541,7 +552,7 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
   const [pos, setPos] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const touchStartX = useRef<number | null>(null);
-  const { soundOn, setSoundOn, audioError, play } = useSound();
+  const { soundOn, setSoundOn, audioError, play, hydrated } = useSound();
 
   function setMode(rand: boolean) {
     setShuffled(rand);
@@ -597,10 +608,10 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
   const current = cards[order[pos]];
 
   useEffect(() => {
-    if (!soundOn) return;
+    if (!hydrated || !soundOn) return;
     const field: AudioField = flipped ? "answer-lu" : "question-lu";
     play(current.id, field).catch(() => {});
-  }, [current.id, flipped, soundOn, play]);
+  }, [current.id, flipped, soundOn, hydrated, play]);
 
   return (
     <>
@@ -730,7 +741,7 @@ git commit -m "feat: add sound toggle and Luxembourgish autoplay to study mode"
 - Modify: `app/study/[topicId]/FlashcardStudy.tsx` (full rewrite — see target content below)
 
 **Interfaces:**
-- Consumes: `stop()` from Task 5's `useSound` (now used for the first time), plus the existing `soundOn`/`setSoundOn`/`audioError`/`play` contract.
+- Consumes: `stop()` from Task 5's `useSound` (now used for the first time), plus the existing `soundOn`/`setSoundOn`/`audioError`/`play`/`hydrated` contract. The manual-autoplay effect from Task 5 carries forward unchanged in spirit but now also checks `autoModeRef` (below) — it must keep the `hydrated` gate from Task 5 too, since this is the same race-prone code path.
 - No new exports — `FlashcardStudy` keeps the same `{ cards: StudyCard[] }` prop.
 
 - [ ] **Step 1: Add Auto mode to FlashcardStudy**
@@ -767,7 +778,7 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
   const [autoMode, setAutoMode] = useState<AutoMode>(null);
   const touchStartX = useRef<number | null>(null);
   const autoGenRef = useRef(0);
-  const { soundOn, setSoundOn, audioError, play, stop } = useSound();
+  const { soundOn, setSoundOn, audioError, play, stop, hydrated } = useSound();
 
   function stopAuto() {
     autoGenRef.current += 1;
@@ -883,10 +894,10 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
   autoModeRef.current = autoMode;
 
   useEffect(() => {
-    if (!soundOn || autoModeRef.current) return;
+    if (!hydrated || !soundOn || autoModeRef.current) return;
     const field: AudioField = flipped ? "answer-lu" : "question-lu";
     play(current.id, field).catch(() => {});
-  }, [current.id, flipped, soundOn, play]);
+  }, [current.id, flipped, soundOn, hydrated, play]);
 
   function onTouchStart(e: TouchEvent) {
     touchStartX.current = e.touches[0].clientX;
