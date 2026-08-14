@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type TouchEvent } from "react";
 import type { StudyCard } from "@/lib/db/queries";
+import { useSound, type AudioField } from "./useSound";
 
 function shuffle<T>(items: T[]): T[] {
   const copy = [...items];
@@ -18,6 +19,7 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
   const [pos, setPos] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const touchStartX = useRef<number | null>(null);
+  const { soundOn, setSoundOn, audioError, play } = useSound();
 
   function setMode(rand: boolean) {
     setShuffled(rand);
@@ -65,12 +67,19 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
     if (touchStartX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     if (Math.abs(dx) > 60) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       dx < 0 ? next() : prev();
     }
     touchStartX.current = null;
   }
 
   const current = cards[order[pos]];
+
+  useEffect(() => {
+    if (!soundOn) return;
+    const field: AudioField = flipped ? "answer-lu" : "question-lu";
+    play(current.id, field).catch(() => {});
+  }, [current.id, flipped, soundOn, play]);
 
   return (
     <>
@@ -95,6 +104,22 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
         </div>
         <div className="text-[13px] font-semibold text-[#6c7a89]">
           {pos + 1} / {order.length}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between px-4 pb-2">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSoundOn(!soundOn)}
+            className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
+              soundOn ? "bg-[#2E5A87] text-white" : "bg-[#dde5ee] text-[#213f5e]"
+            }`}
+          >
+            {soundOn ? "Sound: On" : "Sound: Off"}
+          </button>
+          {audioError && (
+            <span className="text-[11px] font-semibold text-[#c8702d]">Audio unavailable</span>
+          )}
         </div>
       </div>
 
