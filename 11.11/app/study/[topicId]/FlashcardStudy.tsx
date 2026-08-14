@@ -25,6 +25,7 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
   const [pos, setPos] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [autoMode, setAutoMode] = useState<AutoMode>(null);
+  const [pauseOn, setPauseOn] = useState(true);
   const touchStartX = useRef<number | null>(null);
   const autoGenRef = useRef(0);
   const { soundOn, setSoundOn, audioError, play, stop, hydrated } = useSound();
@@ -63,6 +64,15 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
     }
   }
 
+  // Mirrors `pauseOn` into a ref (via effect, not a render-time write — see
+  // `autoModeRef` below for why) so `runAuto`'s long-lived loop can read the
+  // live value at each pause point instead of the value captured when it
+  // started, letting the toggle take effect mid-run.
+  const pauseOnRef = useRef(true);
+  useEffect(() => {
+    pauseOnRef.current = pauseOn;
+  });
+
   async function runAuto(mode: "L" | "L+R") {
     const gen = ++autoGenRef.current;
     setAutoMode(mode);
@@ -84,8 +94,10 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
           if (autoGenRef.current !== gen) return;
         }
 
-        await sleep(1000);
-        if (autoGenRef.current !== gen) return;
+        if (pauseOnRef.current) {
+          await sleep(1000);
+          if (autoGenRef.current !== gen) return;
+        }
 
         setFlipped(true);
         await play(cardId, "answer-lu");
@@ -96,8 +108,10 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
           if (autoGenRef.current !== gen) return;
         }
 
-        await sleep(1000);
-        if (autoGenRef.current !== gen) return;
+        if (pauseOnRef.current) {
+          await sleep(1000);
+          if (autoGenRef.current !== gen) return;
+        }
 
         position += 1;
       }
@@ -202,6 +216,14 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
             }`}
           >
             {soundOn ? "Sound: On" : "Sound: Off"}
+          </button>
+          <button
+            onClick={() => setPauseOn(!pauseOn)}
+            className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
+              pauseOn ? "bg-[#2E5A87] text-white" : "bg-[#dde5ee] text-[#213f5e]"
+            }`}
+          >
+            {pauseOn ? "Pause: On" : "Pause: Off"}
           </button>
           {audioError && (
             <span className="text-[11px] font-semibold text-[#c8702d]">Audio unavailable</span>
