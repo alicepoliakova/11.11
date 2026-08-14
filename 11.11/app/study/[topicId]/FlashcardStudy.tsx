@@ -19,7 +19,7 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
   const [pos, setPos] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const touchStartX = useRef<number | null>(null);
-  const { soundOn, setSoundOn, audioError, play } = useSound();
+  const { soundOn, setSoundOn, audioError, play, hydrated } = useSound();
 
   function setMode(rand: boolean) {
     setShuffled(rand);
@@ -76,10 +76,10 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
   const current = cards[order[pos]];
 
   useEffect(() => {
-    if (!soundOn) return;
+    if (!hydrated || !soundOn) return;
     const field: AudioField = flipped ? "answer-lu" : "question-lu";
     play(current.id, field).catch(() => {});
-  }, [current.id, flipped, soundOn, play]);
+  }, [current.id, flipped, soundOn, hydrated, play]);
 
   return (
     <>

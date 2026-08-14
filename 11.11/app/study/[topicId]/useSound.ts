@@ -8,6 +8,7 @@ const SOUND_STORAGE_KEY = "flashcards-sound-on";
 
 export function useSound() {
   const [soundOn, setSoundOnState] = useState(true);
+  const [hydrated, setHydrated] = useState(false);
   const [audioError, setAudioError] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const pendingRejectRef = useRef<(() => void) | null>(null);
@@ -17,6 +18,7 @@ export function useSound() {
     const stored = window.localStorage.getItem(SOUND_STORAGE_KEY);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (stored !== null) setSoundOnState(stored === "true");
+    setHydrated(true);
     return () => {
       audioRef.current?.pause();
       audioRef.current = null;
@@ -65,5 +67,5 @@ export function useSound() {
     pendingRejectRef.current?.();
   }, []);
 
-  return { soundOn, setSoundOn, audioError, play, stop };
+  return { soundOn, setSoundOn, audioError, play, stop, hydrated };
 }
