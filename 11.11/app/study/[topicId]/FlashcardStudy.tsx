@@ -140,8 +140,9 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
   // the instant Auto mode ends, this effect would replay whatever face
   // was just read by the Auto loop a second time.
   const autoModeRef = useRef<AutoMode>(null);
-  // eslint-disable-next-line react-hooks/refs -- deliberate render-time mirror, see comment above
-  autoModeRef.current = autoMode;
+  useEffect(() => {
+    autoModeRef.current = autoMode;
+  });
 
   useEffect(() => {
     if (!hydrated || !soundOn || autoModeRef.current) return;
