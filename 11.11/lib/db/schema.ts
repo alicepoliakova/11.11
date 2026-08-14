@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, blob } from "drizzle-orm/sqlite-core";
 
 export const topics = sqliteTable("topics", {
   id: text("id").primaryKey(),
@@ -16,6 +16,10 @@ export const cards = sqliteTable("cards", {
   questionRu: text("question_ru").notNull(),
   answerLu: text("answer_lu").notNull(),
   answerRu: text("answer_ru").notNull(),
+  questionLuAudio: blob("question_lu_audio", { mode: "buffer" }),
+  questionRuAudio: blob("question_ru_audio", { mode: "buffer" }),
+  answerLuAudio: blob("answer_lu_audio", { mode: "buffer" }),
+  answerRuAudio: blob("answer_ru_audio", { mode: "buffer" }),
   position: integer("position").notNull(),
   createdAt: integer("created_at").notNull(),
 });
