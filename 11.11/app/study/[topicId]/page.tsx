@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTopicWithCards } from "@/lib/db/queries";
-import { FlashcardStudy } from "./FlashcardStudy";
+import { StudySession } from "./StudySession";
 
 export default async function StudyPage({
   params,
@@ -28,7 +28,7 @@ export default async function StudyPage({
           This topic has no cards yet.
         </p>
       ) : (
-        <FlashcardStudy cards={topic.cards} />
+        <StudySession cards={topic.cards} />
       )}
     </div>
   );

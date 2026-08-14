@@ -19,10 +19,18 @@ function sleep(ms: number): Promise<void> {
 
 type AutoMode = "L" | "L+R" | null;
 
-export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
+export function FlashcardStudy({
+  cards,
+  startIndex,
+  onBackToList,
+}: {
+  cards: StudyCard[];
+  startIndex: number;
+  onBackToList: () => void;
+}) {
   const [shuffled, setShuffled] = useState(false);
   const [order, setOrder] = useState<number[]>(() => cards.map((_, i) => i));
-  const [pos, setPos] = useState(0);
+  const [pos, setPos] = useState(startIndex);
   const [flipped, setFlipped] = useState(false);
   const [autoMode, setAutoMode] = useState<AutoMode>(null);
   const [pauseOn, setPauseOn] = useState(true);
@@ -180,7 +188,19 @@ export function FlashcardStudy({ cards }: { cards: StudyCard[] }) {
 
   return (
     <>
-      <div className="flex items-center justify-between px-4 pb-1 pt-3">
+      <div className="px-4 pb-1 pt-3">
+        <button
+          onClick={() => {
+            if (autoMode) stopAuto();
+            onBackToList();
+          }}
+          className="text-[13px] font-semibold text-[var(--ink-muted)] underline"
+        >
+          ‹ Back to cards
+        </button>
+      </div>
+
+      <div className="flex items-center justify-between px-4 pb-1">
         <div className="flex rounded-[10px] bg-[var(--btn-secondary-bg)] p-[3px]">
           <button
             onClick={() => setMode(false)}
