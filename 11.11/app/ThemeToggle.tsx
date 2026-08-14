@@ -34,7 +34,7 @@ export function ThemeToggle() {
         onClick={() => choose("light")}
         className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
           theme === "light"
-            ? "bg-[var(--accent-fill)] text-[var(--accent-ink)]"
+            ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm"
             : "text-[var(--btn-secondary-ink)]"
         }`}
       >
@@ -44,7 +44,7 @@ export function ThemeToggle() {
         onClick={() => choose("dark")}
         className={`rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
           theme === "dark"
-            ? "bg-[var(--accent-fill)] text-[var(--accent-ink)]"
+            ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm"
             : "text-[var(--btn-secondary-ink)]"
         }`}
       >
