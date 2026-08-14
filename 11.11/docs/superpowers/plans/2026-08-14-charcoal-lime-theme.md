@@ -225,6 +225,10 @@ export function ThemeToggle() {
 
   useEffect(() => {
     const current = document.documentElement.getAttribute("data-theme");
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- same
+    // justified SSR-sync pattern as useSound.ts's mount effect: correcting
+    // React state to match the DOM attribute the blocking script already
+    // set, before hydration renders anything visibly wrong.
     if (current === "light" || current === "dark") setTheme(current);
   }, []);
 
