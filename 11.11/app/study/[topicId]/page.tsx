@@ -28,7 +28,7 @@ export default async function StudyPage({
           This topic has no cards yet.
         </p>
       ) : (
-        <StudySession cards={topic.cards} />
+        <StudySession cards={topic.cards} topicId={topicId} />
       )}
     </div>
   );

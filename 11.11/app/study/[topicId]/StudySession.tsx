@@ -5,7 +5,7 @@ import type { StudyCard } from "@/lib/db/queries";
 import { CardList } from "./CardList";
 import { FlashcardStudy } from "./FlashcardStudy";
 
-export function StudySession({ cards }: { cards: StudyCard[] }) {
+export function StudySession({ cards, topicId }: { cards: StudyCard[]; topicId: string }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   // Persists across the selectedIndex null/non-null cycles (StudySession
   // itself never unmounts) so CardList can restore scroll position after
@@ -19,7 +19,9 @@ export function StudySession({ cards }: { cards: StudyCard[] }) {
   }
 
   if (selectedIndex === null) {
-    return <CardList cards={cards} onSelect={select} focusIndex={lastSelected} />;
+    return (
+      <CardList cards={cards} topicId={topicId} onSelect={select} focusIndex={lastSelected} />
+    );
   }
 
   return (
