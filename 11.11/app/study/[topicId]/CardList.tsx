@@ -4,12 +4,18 @@ import { useEffect, useRef, useState } from "react";
 import {
   DndContext,
   closestCenter,
+  KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+  sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
 import type { StudyCard } from "@/lib/db/queries";
 import { reorderCards } from "@/lib/actions/cards";
 import { EditableCardRow } from "./EditableCardRow";
@@ -29,14 +35,18 @@ export function CardList({
   const [editMode, setEditMode] = useState(false);
   const [orderedCards, setOrderedCards] = useState(cards);
   const focusedRef = useRef<HTMLButtonElement | null>(null);
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   useEffect(() => {
-    // same justified sync-from-prop pattern as useSound.ts's mount effect and
-    // ThemeToggle's mount effect elsewhere in this project: `cards` only
-    // changes when the server actually revalidates fresh data (a rare,
-    // deliberate event here, not a hot path), so the one-extra-render
-    // cost this rule warns about is negligible.
+    // Same justified set-state-in-effect suppression used elsewhere in this
+    // project (useSound.ts, ThemeToggle.tsx), applied here to a sync-from-prop
+    // effect rather than their mount-only effects: `cards` only changes when
+    // the server actually revalidates fresh data (a rare, deliberate event
+    // here, not a hot path), so the one-extra-render cost this rule warns
+    // about is negligible.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setOrderedCards(cards);
   }, [cards]);
@@ -53,12 +63,13 @@ export function CardList({
     const newIndex = orderedCards.findIndex((c) => c.id === over.id);
     if (oldIndex === -1 || newIndex === -1) return;
 
+    const previous = orderedCards;
     const next = arrayMove(orderedCards, oldIndex, newIndex);
     setOrderedCards(next);
     reorderCards(
       topicId,
       next.map((c) => c.id)
-    );
+    ).catch(() => setOrderedCards(previous));
   }
 
   function selectCard(card: StudyCard) {
@@ -99,8 +110,27 @@ export function CardList({
     );
   }
 
-  const [first, ...rest] = orderedCards;
   const focusedCardId = focusIndex !== null ? cards[focusIndex]?.id : undefined;
+
+  if (orderedCards.length === 0) {
+    return (
+      <div className="flex-1 overflow-y-auto px-4 pb-[calc(20px+env(safe-area-inset-bottom))] pt-5">
+        <div className="mb-4 flex justify-end">
+          <button
+            onClick={() => setEditMode(true)}
+            className="rounded-lg bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--btn-secondary-ink)]"
+          >
+            Edit
+          </button>
+        </div>
+        <p className="p-6 text-center text-sm text-[var(--ink-muted)]">
+          This topic has no cards yet. Tap Edit to add one.
+        </p>
+      </div>
+    );
+  }
+
+  const [first, ...rest] = orderedCards;
 
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-[calc(20px+env(safe-area-inset-bottom))] pt-5">

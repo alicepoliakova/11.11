@@ -57,7 +57,12 @@ is ephemeral:
    npm run db:migrate
    npm run db:seed
    ```
-7. Deploy. `/admin` is protected by `ADMIN_PASSWORD`; `/` and `/study/**` are public.
+7. Deploy. `/admin` login gates topic-level management — creating and
+   deleting topics, and the up/down reorder arrows there. Card data itself
+   is intentionally public and unauthenticated: from `/study/**`, anyone
+   with the URL can add, edit, delete, and drag-reorder any flashcard, no
+   login required. This is a deliberate choice for a personal app, not an
+   oversight.
 
 ## Text-to-speech (ElevenLabs)
 

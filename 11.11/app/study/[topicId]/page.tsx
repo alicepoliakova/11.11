@@ -23,13 +23,7 @@ export default async function StudyPage({
           Topics
         </Link>
       </header>
-      {topic.cards.length === 0 ? (
-        <p className="flex-1 p-6 text-center text-sm text-[var(--ink-muted)]">
-          This topic has no cards yet.
-        </p>
-      ) : (
-        <StudySession cards={topic.cards} topicId={topicId} />
-      )}
+      <StudySession cards={topic.cards} topicId={topicId} />
     </div>
   );
 }

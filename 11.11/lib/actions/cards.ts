@@ -62,29 +62,36 @@ export async function updateCard(cardId: number, topicId: string, formData: Form
       answerLuAudio: null,
       answerRuAudio: null,
     })
-    .where(eq(cards.id, cardId));
+    .where(and(eq(cards.id, cardId), eq(cards.topicId, topicId)));
 
   revalidatePath(`/admin/${topicId}`);
   revalidatePath(`/study/${topicId}`);
 }
 
 export async function deleteCard(cardId: number, topicId: string, _formData: FormData): Promise<void> {
-  await db.delete(cards).where(eq(cards.id, cardId));
+  await db.delete(cards).where(and(eq(cards.id, cardId), eq(cards.topicId, topicId)));
   revalidatePath(`/admin/${topicId}`);
   revalidatePath(`/study/${topicId}`);
   revalidatePath("/");
   revalidatePath("/admin");
 }
 
+const MAX_REORDER_CARDS = 1000;
+
 export async function reorderCards(topicId: string, orderedCardIds: number[]): Promise<void> {
-  await Promise.all(
-    orderedCardIds.map((cardId, index) =>
-      db
-        .update(cards)
-        .set({ position: index })
-        .where(and(eq(cards.id, cardId), eq(cards.topicId, topicId)))
-    )
+  if (orderedCardIds.length === 0 || orderedCardIds.length > MAX_REORDER_CARDS) return;
+
+  const updates = orderedCardIds.map((cardId, index) =>
+    db
+      .update(cards)
+      .set({ position: index })
+      .where(and(eq(cards.id, cardId), eq(cards.topicId, topicId)))
   );
+
+  // Guaranteed non-empty at runtime by the length check above; db.batch()'s
+  // type signature requires a non-empty tuple, which a dynamic-length
+  // .map() result can't express structurally.
+  await db.batch(updates as [(typeof updates)[number], ...(typeof updates)[number][]]);
 
   revalidatePath(`/admin/${topicId}`);
   revalidatePath(`/study/${topicId}`);
