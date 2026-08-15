@@ -32,6 +32,12 @@ export function CardList({
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   useEffect(() => {
+    // same justified sync-from-prop pattern as useSound.ts's mount effect and
+    // ThemeToggle's mount effect elsewhere in this project: `cards` only
+    // changes when the server actually revalidates fresh data (a rare,
+    // deliberate event here, not a hot path), so the one-extra-render
+    // cost this rule warns about is negligible.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOrderedCards(cards);
   }, [cards]);
 
