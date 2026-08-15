@@ -72,12 +72,16 @@ export function FlashcardStudy({
   }
 
   function next() {
+    // While tracking progress, forward navigation only happens via the
+    // ✕/✓ buttons (markCurrent) so every card gets marked before the pass
+    // advances — swipe-left and ArrowRight must not bypass that. The
+    // `Next ›` button itself is only rendered when `trackProgress` is
+    // false, so this guard only ever engages for swipe/keyboard input.
+    if (trackProgress) return;
     if (autoMode) stopAuto();
     setFlipped(false);
     if (pos < order.length - 1) {
       setPos(pos + 1);
-    } else if (trackProgress) {
-      setSummary(true);
     } else {
       if (shuffled) setOrder(shuffle(passCards.map((_, i) => i)));
       setPos(0);
@@ -214,6 +218,7 @@ export function FlashcardStudy({
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
+      if (summary) return;
       if (e.key === " ") {
         e.preventDefault();
         if (autoMode) stopAuto();
@@ -246,10 +251,13 @@ export function FlashcardStudy({
   });
 
   useEffect(() => {
-    if (!hydrated || !soundOn || autoModeRef.current) return;
+    // Also bail while the summary screen is showing: marking the last card
+    // flips `flipped` back to false, which would otherwise re-fire this
+    // effect and play audio over a screen with no card visible.
+    if (!hydrated || !soundOn || autoModeRef.current || summary) return;
     const field: AudioField = flipped ? "answer-lu" : "question-lu";
     play(current.id, field).catch(() => {});
-  }, [current.id, flipped, soundOn, hydrated, play]);
+  }, [current.id, flipped, soundOn, hydrated, play, summary]);
 
   if (summary) {
     const knownCount = passKnown.size;
@@ -311,7 +319,7 @@ export function FlashcardStudy({
         </button>
       </div>
 
-      <div className="flex items-center justify-between px-4 pb-1">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 pb-1">
         <div className="flex rounded-[10px] bg-[var(--btn-secondary-bg)] p-[3px]">
           <button
             onClick={() => setMode(false)}
@@ -336,8 +344,21 @@ export function FlashcardStudy({
             Shuffle
           </button>
         </div>
-        <div className="text-[13px] font-semibold text-[var(--ink-muted)]">
-          {pos + 1} / {order.length}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTrackProgress}
+            aria-pressed={trackProgress}
+            className={`rounded-lg border px-3 py-1.5 text-[13px] font-semibold ${
+              trackProgress
+                ? "border-[var(--accent-on-dark)] bg-[var(--btn-secondary-bg)] text-[var(--accent-on-dark)]"
+                : "border-[var(--line)] bg-[var(--btn-secondary-bg)] text-[var(--btn-secondary-ink)]"
+            }`}
+          >
+            {trackProgress ? "Track: On" : "Track: Off"}
+          </button>
+          <div className="text-[13px] font-semibold text-[var(--ink-muted)]">
+            {pos + 1} / {order.length}
+          </div>
         </div>
       </div>
 
@@ -368,45 +389,35 @@ export function FlashcardStudy({
           >
             {pauseOn ? "Pause: On" : "Pause: Off"}
           </button>
-          <button
-            onClick={toggleTrackProgress}
-            aria-pressed={trackProgress}
-            className={`rounded-lg border px-3 py-1.5 text-[13px] font-semibold ${
-              trackProgress
-                ? "border-[var(--accent-on-dark)] bg-[var(--btn-secondary-bg)] text-[var(--accent-on-dark)]"
-                : "border-[var(--line)] bg-[var(--btn-secondary-bg)] text-[var(--btn-secondary-ink)]"
-            }`}
-          >
-            {trackProgress ? "Track progress: On" : "Track progress: Off"}
-          </button>
           {audioError && (
             <span className="text-[11px] font-semibold text-[var(--danger)]">Audio unavailable</span>
           )}
         </div>
         <div className="flex gap-2">
-          {autoMode ? (
-            <button
-              onClick={stopAuto}
-              className="rounded-lg border border-[var(--accent-on-dark)] bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--accent-on-dark)]"
-            >
-              ■ Stop
-            </button>
-          ) : (
-            <>
+          {!trackProgress &&
+            (autoMode ? (
               <button
-                onClick={() => runAuto("L")}
-                className="rounded-lg border border-[var(--line)] bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--btn-secondary-ink)]"
+                onClick={stopAuto}
+                className="rounded-lg border border-[var(--accent-on-dark)] bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--accent-on-dark)]"
               >
-                ▶ Auto L
+                ■ Stop
               </button>
-              <button
-                onClick={() => runAuto("L+R")}
-                className="rounded-lg border border-[var(--line)] bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--btn-secondary-ink)]"
-              >
-                ▶ Auto L+R
-              </button>
-            </>
-          )}
+            ) : (
+              <>
+                <button
+                  onClick={() => runAuto("L")}
+                  className="rounded-lg border border-[var(--line)] bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--btn-secondary-ink)]"
+                >
+                  ▶ Auto L
+                </button>
+                <button
+                  onClick={() => runAuto("L+R")}
+                  className="rounded-lg border border-[var(--line)] bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--btn-secondary-ink)]"
+                >
+                  ▶ Auto L+R
+                </button>
+              </>
+            ))}
         </div>
       </div>
 
@@ -465,13 +476,13 @@ export function FlashcardStudy({
           <>
             <button
               onClick={() => markCurrent("unknown")}
-              className="flex-1 rounded-[14px] border border-[var(--danger)] bg-[var(--btn-secondary-bg)] py-4 text-base font-bold text-[var(--danger)]"
+              className="flex-1 rounded-[14px] border border-[var(--danger)] bg-[var(--btn-secondary-bg)] py-4 text-sm font-bold text-[var(--danger)]"
             >
               ✕ Don&apos;t know
             </button>
             <button
               onClick={() => markCurrent("known")}
-              className="flex-1 rounded-[14px] bg-[var(--accent-fill)] py-4 text-base font-bold text-[var(--accent-ink)]"
+              className="flex-1 rounded-[14px] bg-[var(--accent-fill)] py-4 text-sm font-bold text-[var(--accent-ink)]"
             >
               ✓ Know
             </button>

@@ -96,8 +96,12 @@ not an oversight.
 (`drizzle/0002_...`) for the `known_status` column. If you're deploying this
 on top of an already-live database, run `npm run db:migrate` against the
 production `DATABASE_URL`/`DATABASE_AUTH_TOKEN` (see the Database section
-above) *before* deploying — otherwise the study page will fail to load,
-since it selects the new column.
+above) *before* deploying — otherwise both the study page and the home page
+will fail to load, since `getTopicWithCards` and `getTopicsWithCounts` (in
+`lib/db/queries.ts`) both select/aggregate the new column. Worse, since the
+home page has no dynamic rendering directive, `next build` prerenders it
+statically — so an unmigrated database can fail the build itself, not just
+a live request.
 
 ## Deploy on Vercel
 

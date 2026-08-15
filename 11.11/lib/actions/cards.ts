@@ -102,11 +102,21 @@ export async function markCardStatus(
   topicId: string,
   status: "known" | "unknown"
 ): Promise<void> {
+  // `{ enum: [...] }` on the column is compile-time only — validate at
+  // runtime too, since `status` is client-supplied and nothing else stops
+  // a crafted call from writing garbage into known_status.
+  if (status !== "known" && status !== "unknown") return;
+
   await db
     .update(cards)
     .set({ knownStatus: status })
     .where(and(eq(cards.id, cardId), eq(cards.topicId, topicId)));
 
+  // Load-bearing for the CardList "K / N known" badge and the home page's
+  // per-topic count: onBackToList only flips local state in FlashcardStudy,
+  // it doesn't refetch, so these revalidations are what make the badges
+  // reflect a mark after returning from a study session. Do not remove as
+  // "redundant" without confirming that refresh path still works.
   revalidatePath(`/study/${topicId}`);
   revalidatePath("/");
 }

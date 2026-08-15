@@ -113,24 +113,33 @@ export function CardList({
   const focusedCardId = focusIndex !== null ? cards[focusIndex]?.id : undefined;
   const knownCount = cards.filter((c) => c.knownStatus === "known").length;
 
+  // Single copy of the badge+Edit-button header, reused by both the
+  // empty-state return below and the main return, so the markup can't drift
+  // between the two. In the empty-state branch `cards.length` is always 0
+  // (orderedCards stays in sync with cards), so it always renders the plain
+  // `<span />` — behavior is unchanged from having two separate copies.
+  const header = (
+    <div className="mb-4 flex items-center justify-between">
+      {cards.length > 0 ? (
+        <span className="text-[13px] font-semibold text-[var(--ink-muted)]">
+          {knownCount} / {cards.length} known
+        </span>
+      ) : (
+        <span />
+      )}
+      <button
+        onClick={() => setEditMode(true)}
+        className="rounded-lg bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--btn-secondary-ink)]"
+      >
+        Edit
+      </button>
+    </div>
+  );
+
   if (orderedCards.length === 0) {
     return (
       <div className="flex-1 overflow-y-auto px-4 pb-[calc(20px+env(safe-area-inset-bottom))] pt-5">
-        <div className="mb-4 flex items-center justify-between">
-          {cards.length > 0 ? (
-            <span className="text-[13px] font-semibold text-[var(--ink-muted)]">
-              {knownCount} / {cards.length} known
-            </span>
-          ) : (
-            <span />
-          )}
-          <button
-            onClick={() => setEditMode(true)}
-            className="rounded-lg bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--btn-secondary-ink)]"
-          >
-            Edit
-          </button>
-        </div>
+        {header}
         <p className="p-6 text-center text-sm text-[var(--ink-muted)]">
           This topic has no cards yet. Tap Edit to add one.
         </p>
@@ -142,21 +151,7 @@ export function CardList({
 
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-[calc(20px+env(safe-area-inset-bottom))] pt-5">
-      <div className="mb-4 flex items-center justify-between">
-        {cards.length > 0 ? (
-          <span className="text-[13px] font-semibold text-[var(--ink-muted)]">
-            {knownCount} / {cards.length} known
-          </span>
-        ) : (
-          <span />
-        )}
-        <button
-          onClick={() => setEditMode(true)}
-          className="rounded-lg bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--btn-secondary-ink)]"
-        >
-          Edit
-        </button>
-      </div>
+      {header}
       <button
         type="button"
         ref={first.id === focusedCardId ? focusedRef : undefined}
