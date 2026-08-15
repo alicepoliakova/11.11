@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { eq, max } from "drizzle-orm";
+import { and, eq, max } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { cards } from "@/lib/db/schema";
 import { requireAdminSession } from "@/lib/auth";
@@ -11,8 +11,6 @@ export async function createCard(
   _prevState: { error?: string },
   formData: FormData
 ): Promise<{ error?: string }> {
-  if (!(await requireAdminSession())) return { error: "Unauthorized" };
-
   const questionLu = String(formData.get("questionLu") ?? "").trim();
   const questionRu = String(formData.get("questionRu") ?? "").trim();
   const answerLu = String(formData.get("answerLu") ?? "").trim();
@@ -45,8 +43,6 @@ export async function createCard(
 }
 
 export async function updateCard(cardId: number, topicId: string, formData: FormData): Promise<void> {
-  if (!(await requireAdminSession())) return;
-
   const questionLu = String(formData.get("questionLu") ?? "").trim();
   const questionRu = String(formData.get("questionRu") ?? "").trim();
   const answerLu = String(formData.get("answerLu") ?? "").trim();
@@ -73,13 +69,25 @@ export async function updateCard(cardId: number, topicId: string, formData: Form
 }
 
 export async function deleteCard(cardId: number, topicId: string, _formData: FormData): Promise<void> {
-  if (!(await requireAdminSession())) return;
-
   await db.delete(cards).where(eq(cards.id, cardId));
   revalidatePath(`/admin/${topicId}`);
   revalidatePath(`/study/${topicId}`);
   revalidatePath("/");
   revalidatePath("/admin");
+}
+
+export async function reorderCards(topicId: string, orderedCardIds: number[]): Promise<void> {
+  await Promise.all(
+    orderedCardIds.map((cardId, index) =>
+      db
+        .update(cards)
+        .set({ position: index })
+        .where(and(eq(cards.id, cardId), eq(cards.topicId, topicId)))
+    )
+  );
+
+  revalidatePath(`/admin/${topicId}`);
+  revalidatePath(`/study/${topicId}`);
 }
 
 export async function moveCard(
