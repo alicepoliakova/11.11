@@ -15,6 +15,13 @@
       "when": 1786708107283,
       "tag": "0001_equal_cobalt_man",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1786791419653,
+      "tag": "0002_high_turbo",
+      "breakpoints": true
     }
   ]
 }

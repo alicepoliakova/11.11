@@ -84,6 +84,21 @@ deploying — otherwise both the TTS route and the existing `/admin` card-edit
 feature will break, since `updateCard` also references the new audio
 columns.
 
+## Progress tracking
+
+While studying, "Track progress" lets you mark each card known (✓) or
+don't-know (✕); the app remembers the last mark per card and shows a
+known/total count per topic. Like the rest of `/study/**`, marking a card
+requires no login — this is a personal app and that's a deliberate choice,
+not an oversight.
+
+**Existing deployments:** this feature adds a new migration
+(`drizzle/0002_...`) for the `known_status` column. If you're deploying this
+on top of an already-live database, run `npm run db:migrate` against the
+production `DATABASE_URL`/`DATABASE_AUTH_TOKEN` (see the Database section
+above) *before* deploying — otherwise the study page will fail to load,
+since it selects the new column.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.

@@ -21,6 +21,7 @@ export const cards = sqliteTable("cards", {
   answerLuAudio: blob("answer_lu_audio", { mode: "buffer" }),
   answerRuAudio: blob("answer_ru_audio", { mode: "buffer" }),
   position: integer("position").notNull(),
+  knownStatus: text("known_status", { enum: ["known", "unknown"] }),
   createdAt: integer("created_at").notNull(),
 });
 
