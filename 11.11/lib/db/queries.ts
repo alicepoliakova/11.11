@@ -1,4 +1,4 @@
-import { asc, count, eq } from "drizzle-orm";
+import { asc, count, eq, sql } from "drizzle-orm";
 import { db } from "./index";
 import { topics, cards } from "./schema";
 
@@ -6,6 +6,7 @@ export type TopicSummary = {
   id: string;
   name: string;
   cardCount: number;
+  knownCount: number;
 };
 
 export async function getTopicsWithCounts(): Promise<TopicSummary[]> {
@@ -14,6 +15,7 @@ export async function getTopicsWithCounts(): Promise<TopicSummary[]> {
       id: topics.id,
       name: topics.name,
       cardCount: count(cards.id),
+      knownCount: sql<number>`coalesce(sum(case when ${cards.knownStatus} = 'known' then 1 else 0 end), 0)`,
     })
     .from(topics)
     .leftJoin(cards, eq(cards.topicId, topics.id))
@@ -27,6 +29,7 @@ export type StudyCard = {
   questionRu: string;
   answerLu: string;
   answerRu: string;
+  knownStatus: "known" | "unknown" | null;
 };
 
 export async function getTopicWithCards(
@@ -42,6 +45,7 @@ export async function getTopicWithCards(
       questionRu: cards.questionRu,
       answerLu: cards.answerLu,
       answerRu: cards.answerRu,
+      knownStatus: cards.knownStatus,
     })
     .from(cards)
     .where(eq(cards.topicId, topicId))

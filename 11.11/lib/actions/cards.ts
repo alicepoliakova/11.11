@@ -97,6 +97,20 @@ export async function reorderCards(topicId: string, orderedCardIds: number[]): P
   revalidatePath(`/study/${topicId}`);
 }
 
+export async function markCardStatus(
+  cardId: number,
+  topicId: string,
+  status: "known" | "unknown"
+): Promise<void> {
+  await db
+    .update(cards)
+    .set({ knownStatus: status })
+    .where(and(eq(cards.id, cardId), eq(cards.topicId, topicId)));
+
+  revalidatePath(`/study/${topicId}`);
+  revalidatePath("/");
+}
+
 export async function moveCard(
   cardId: number,
   topicId: string,
