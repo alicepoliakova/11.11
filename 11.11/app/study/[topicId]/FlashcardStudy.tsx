@@ -30,6 +30,11 @@ export function FlashcardStudy({
 }) {
   const [shuffled, setShuffled] = useState(false);
   const [order, setOrder] = useState<number[]>(() => cards.map((_, i) => i));
+  // `startIndex` is an index into `cards`; `pos` indexes into `order` (see
+  // `current = cards[order[pos]]` below). These coincide here only because
+  // `order` is always the identity mapping at mount (shuffled starts
+  // false) — if shuffle state is ever made to persist across mounts, seed
+  // `pos` from `order.indexOf(startIndex)` instead of `startIndex` directly.
   const [pos, setPos] = useState(startIndex);
   const [flipped, setFlipped] = useState(false);
   const [autoMode, setAutoMode] = useState<AutoMode>(null);
