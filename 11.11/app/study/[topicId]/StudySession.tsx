@@ -29,6 +29,7 @@ export function StudySession({ cards, topicId }: { cards: StudyCard[]; topicId: 
       cards={cards}
       startIndex={selectedIndex}
       onBackToList={() => setSelectedIndex(null)}
+      topicId={topicId}
     />
   );
 }
