@@ -36,7 +36,10 @@ export default async function HomePage() {
               >
                 <div>
                   <div className="text-[19px] font-bold text-[var(--ink)]">{topic.name}</div>
-                  <div className="mt-0.5 text-[13px] text-[var(--ink-muted)]">{topic.cardCount} cards</div>
+                  <div className="mt-0.5 text-[13px] text-[var(--ink-muted)]">
+                    {topic.cardCount} cards
+                    {topic.cardCount > 0 && ` · ${topic.knownCount} / ${topic.cardCount} known`}
+                  </div>
                 </div>
                 <div className="text-[22px] text-[var(--accent-text)]">›</div>
               </Link>

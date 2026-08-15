@@ -111,11 +111,19 @@ export function CardList({
   }
 
   const focusedCardId = focusIndex !== null ? cards[focusIndex]?.id : undefined;
+  const knownCount = cards.filter((c) => c.knownStatus === "known").length;
 
   if (orderedCards.length === 0) {
     return (
       <div className="flex-1 overflow-y-auto px-4 pb-[calc(20px+env(safe-area-inset-bottom))] pt-5">
-        <div className="mb-4 flex justify-end">
+        <div className="mb-4 flex items-center justify-between">
+          {cards.length > 0 ? (
+            <span className="text-[13px] font-semibold text-[var(--ink-muted)]">
+              {knownCount} / {cards.length} known
+            </span>
+          ) : (
+            <span />
+          )}
           <button
             onClick={() => setEditMode(true)}
             className="rounded-lg bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--btn-secondary-ink)]"
@@ -134,7 +142,14 @@ export function CardList({
 
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-[calc(20px+env(safe-area-inset-bottom))] pt-5">
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex items-center justify-between">
+        {cards.length > 0 ? (
+          <span className="text-[13px] font-semibold text-[var(--ink-muted)]">
+            {knownCount} / {cards.length} known
+          </span>
+        ) : (
+          <span />
+        )}
         <button
           onClick={() => setEditMode(true)}
           className="rounded-lg bg-[var(--btn-secondary-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--btn-secondary-ink)]"
